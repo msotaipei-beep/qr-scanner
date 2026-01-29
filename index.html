@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拍照掃描模式</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; }
+        .custom-btn {
+            padding: 15px 30px;
+            background: #28a745;
+            color: white;
+            border-radius: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        #file-input { display: none; }
+        #result { margin-top: 20px; font-weight: bold; color: blue; }
+    </style>
+</head>
+<body>
+
+    <h2>拍照辨識 QR Code</h2>
+
+    <label for="file-input" class="custom-btn">
+        📷 開啟相機拍照掃描
+    </label>
+    
+    <input type="file" id="file-input" accept="image/*" capture="camera">
+
+    <div id="result"></div>
+    <div id="reader" style="display:none;"></div>
+
+<script>
+    const fileInput = document.getElementById('file-input');
+    const resultDiv = document.getElementById('result');
+    const html5QrCode = new Html5Qrcode("reader");
+
+    fileInput.addEventListener('change', e => {
+        if (e.target.files.length === 0) return;
+
+        const imageFile = e.target.files[0];
+        resultDiv.innerText = "辨識中...";
+
+        // 開始解析圖片檔案
+        html5QrCode.scanFile(imageFile, true)
+            .then(decodedText => {
+                resultDiv.innerHTML = `掃描成功！<br>內容：<a href="${decodedText}">${decodedText}</a>`;
+            })
+            .catch(err => {
+                resultDiv.innerText = "無法辨識 QR Code，請確認照片清晰且對焦正確。";
+                console.error(err);
+            });
+    });
+</script>
+
+</body>
+</html>
