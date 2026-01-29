@@ -6,22 +6,46 @@
     <title>QR 掃描器</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background: #f8f9fa; }
-        #reader { width: 100%; max-width: 500px; margin: 20px auto; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .btn { padding: 15px 30px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; }
-        #result { margin-top: 20px; padding: 15px; background: #fff; border: 2px solid #28a745; display: none; border-radius: 8px; word-break: break-all; }
+        body { font-family: sans-serif; text-align: center; padding: 10px; background: #f8f9fa; margin: 0; }
+        
+        /* 1. 將結果區域移到上方 */
+        #result { 
+            margin: 10px auto; 
+            padding: 15px; 
+            background: #fff; 
+            border: 2px solid #28a745; 
+            display: none; 
+            border-radius: 8px; 
+            word-break: break-all;
+            max-width: 500px;
+        }
+
+        /* 2. 調整掃描容器，讓它盡量充滿螢幕寬度 */
+        #reader { 
+            width: 100%; 
+            max-width: 600px; /* 增加最大寬度 */
+            margin: 10px auto; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+        }
+
+        .btn { padding: 15px 30px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; margin-top: 10px; }
+        h2 { margin: 15px 0; font-size: 1.5rem; }
     </style>
 </head>
 <body>
 
     <h2>QR Code 即時掃描器</h2>
+
+    <div id="result">
+        <strong>最新掃描結果：</strong><br>
+        <span id="output"></span>
+    </div>
+
     <button class="btn" id="start-btn" onclick="toggleCamera()">開啟相機掃描</button>
     
     <div id="reader"></div>
-    <div id="result">
-        <strong>掃描結果：</strong><br>
-        <span id="output"></span>
-    </div>
 
 <script>
     const html5QrCode = new Html5Qrcode("reader");
@@ -36,25 +60,31 @@
             return;
         }
 
-        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        // 3. 調整 qrbox 大小，讓掃描框變大 (例如 300x300 或更多)
+        const config = { 
+            fps: 20, 
+            qrbox: function(viewfinderWidth, viewfinderHeight) {
+                // 自動計算框框大小：取寬度的 70%
+                let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+                let fontSize = Math.floor(minEdge * 0.7);
+                return { width: fontSize, height: fontSize };
+            }
+        };
         
-        // environment 代表強制使用手機後鏡頭
         html5QrCode.start(
             { facingMode: "environment" }, 
             config,
             (decodedText) => {
-                // 掃描成功後的動作
                 document.getElementById('result').style.display = 'block';
-                document.getElementById('output').innerHTML = `<a href="${decodedText}" target="_blank">${decodedText}</a>`;
+                document.getElementById('output').innerHTML = `<a href="${decodedText}" target="_blank" style="color: #007bff; font-size: 1.2rem; font-weight: bold;">${decodedText}</a>`;
                 
-                // 掃到後手機會震動 (部分 Android 支援)
                 if (navigator.vibrate) navigator.vibrate(200);
             }
         ).then(() => {
             isScanning = true;
             document.getElementById('start-btn').innerText = "關閉相機";
         }).catch(err => {
-            alert("錯誤：請確保已授權相機權限\n" + err);
+            alert("錯誤：\n" + err);
         });
     }
 </script>
