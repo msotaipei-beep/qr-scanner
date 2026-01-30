@@ -76,7 +76,7 @@
             config,
             (decodedText) => {
                 document.getElementById('result').style.display = 'block';
-                document.getElementById('output').innerHTML = `<a href="${decodedText}" target="_blank" style="color: #007bff; font-size: 1.2rem; font-weight: bold;">${decodedText}</a>`;
+                document.getElementById('output').innerHTML = `<a href="${decodedText}" style="color: #007bff; font-size: 1.2rem; font-weight: bold;">${decodedText}</a>`;
                 
                 if (navigator.vibrate) navigator.vibrate(200);
             }
@@ -90,5 +90,6 @@
 </script>
 </body>
 </html>
+
 
 
